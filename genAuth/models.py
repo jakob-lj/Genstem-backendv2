@@ -4,6 +4,9 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from rest_framework_simplejwt.tokens import RefreshToken
 import secrets
+from genAuth.codeGenerators import loginCode
+from django.utils import timezone
+import datetime
 # Create your models here.
 
 class UserManager(BaseUserManager):
@@ -59,5 +62,11 @@ class User(AbstractUser):
 class UserVerificationToken(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    token = models.CharField(max_length=200, default=secrets.token_hex(), editable=False, unique=True)
+    token = models.CharField(max_length=200, default=secrets.token_hex, editable=False, unique=True)
     date = models.DateField(auto_now=True)
+
+class SSOCode(models.Model):
+    id = models.CharField(default=uuid.uuid4, primary_key=True, unique=True, max_length=100)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    code = models.CharField(default=loginCode, max_length=10)
+    date = models.DateTimeField(default=timezone.now)

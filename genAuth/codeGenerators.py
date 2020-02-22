@@ -1,0 +1,10 @@
+
+from django.utils import timezone
+import random
+
+import datetime
+
+def loginCode():
+    return random.randint(1e6, 1e7)
+
+

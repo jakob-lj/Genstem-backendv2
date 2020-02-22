@@ -3,7 +3,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 
-from genAuth.models import User, UserVerificationToken
+from django.utils import timezone
+from genAuth.ssoGenerator import getCode
+from genAuth.models import User, UserVerificationToken, SSOCode
 from genAuth.notifications import sendSSOToken, sendVerificationEmail
 from security.errorHandling import verbosedFeedback
 import datetime
@@ -28,8 +30,8 @@ class SSOLogin(APIView):
             return Response()
         # if no exceptions
 
-        
-        sendSSOToken(user)
+        code = getCode(user)    
+        sendSSOToken(user, code)
         return Response({'ok':True}, status=200)
     
 class CreateUser(APIView):
@@ -43,7 +45,7 @@ class CreateUser(APIView):
             return Response({'ok':False, 'err':'MISSING_INFO', 'verbose':verbosedFeedback(e)}, status=400)
         except ObjectDoesNotExist: # create new user here
             user = User.objects.create(name=name, email=email)
-            sendSSOToken(user)
+            sendSSOToken(user) # usr should be able to log in directly after created user
             try:
                 tokenObj = UserVerificationToken.objects.get(user=user)
             except ObjectDoesNotExist:

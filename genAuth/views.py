@@ -9,15 +9,31 @@ from genAuth.models import User, UserVerificationToken, SSOCode
 from genAuth.notifications import sendSSOToken, sendVerificationEmail
 from security.errorHandling import verbosedFeedback
 from genAuth.tokenHandler import get_tokens_for_user
+from rest_framework.schemas import AutoSchema
 import datetime
+import coreapi
 
 # Create your views here.
 class SSOLogin(APIView):
+    
 
     def get(self, request):
         return Response(200)
 
     def post(self, request):
+        """
+        GET SSO CODE FOR USER
+        ---
+        parameters:
+        -   name: email
+            description: users email, used to identify the user
+            required: true
+            type: string
+            paramType: form
+        """
+        schema = AutoSchema(
+            manual_fields = [coreapi.Field('t')]
+        )
         try:
             email = request.data['email'] 
             user = User.objects.get(email=email) # user exists
@@ -116,3 +132,5 @@ class VerifyUser(APIView):
         user.dummy = False
         user.save()
         return Response({'ok':True}, status=200)
+
+

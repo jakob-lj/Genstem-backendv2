@@ -1,5 +1,5 @@
 
-
+import os
 from notifications.email import send_email_template
 
 def sendSSOToken(user):

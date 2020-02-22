@@ -3,7 +3,10 @@ import requests
 import json
 import os
 
-domain = "mg.genstem.jakoblj.com"
+try:
+	domain = os.environ.get('MAILGUN_DOMAIN_NAME')
+except:
+	domain = "mg.genstem.jakoblj.com"
 fAdress = "Genstem Login <support@mg.genstem.jakoblj.com>"
 
 def send_email(to, subject, body=""):

@@ -20,4 +20,5 @@ from genAuth.views import SSOLogin
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('genAuth.urls')),
+    path('api/', include('api.urls'))
 ]

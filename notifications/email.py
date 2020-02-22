@@ -24,13 +24,16 @@ def send_email(to, subject, body=""):
 		return True
 
 
-def send_email_template(to, subject, template, context):
+def send_email_template(to, subject, template, context, addLogo=False):
+	files = []
+	if addLogo:
+		files += [("inline", open('assets/files/dark_logo.png', 'rb'))]
 	if os.environ.get('MAILGUN_API_KEY'):
 		args = json.dumps(context)
 		return requests.post(
 			"https://api.eu.mailgun.net/v3/" + domain + "/messages",
 			auth=("api", os.environ.get('MAILGUN_API_KEY')),
-			files=[("inline", open('assets/files/logo.png', 'rb'))],
+			files=files,
 			data={"from": fAdress,
 				"to": to,
 				"subject": subject,

@@ -5,6 +5,6 @@ import random
 import datetime
 
 def loginCode():
-    return random.randint(1e6, 1e7)
+    return random.randint(1e5+1, 1e6-1)
 
 

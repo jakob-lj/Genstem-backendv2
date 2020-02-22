@@ -3,7 +3,8 @@ import os
 from notifications.email import send_email_template
 
 def sendSSOToken(user, code):
-    
+    code = str(code)
+    code = code[:3] + ' ' + code[3:]
     return send_email_template(user.email, 'Engangskode', 'ssologin', context={'email':user.email, 'code':code})
 
 

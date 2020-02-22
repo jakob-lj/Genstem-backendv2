@@ -8,6 +8,7 @@ from genAuth.ssoGenerator import getCode
 from genAuth.models import User, UserVerificationToken, SSOCode
 from genAuth.notifications import sendSSOToken, sendVerificationEmail
 from security.errorHandling import verbosedFeedback
+from genAuth.tokenHandler import get_tokens_for_user
 import datetime
 
 # Create your views here.
@@ -32,7 +33,27 @@ class SSOLogin(APIView):
 
         code = getCode(user)    
         sendSSOToken(user, code)
-        return Response({'ok':True}, status=200)
+        return Response({'ok':True, 'id':user.id}, status=200)
+
+class LoginStepTwo(APIView):
+    def post(self, request):
+        try:
+            id = request.data['id']
+            code = request.data['code']
+            user = User.objects.get(pk=id)
+        except KeyError as e:
+            return Response({'ok':False, 'err':'MISSING_INFO', 'verbosed':verbosedFeedback(e)})
+        except Exception:
+            return Response({'ok':False, 'err':'NOT_A_USER', 'verbosed':'user id did not match'}, status=400)
+        try:
+            twoDaysAgo = timezone.now()-datetime.timedelta(days=2)
+            ssoCode = SSOCode.objects.get(user=user, code=code, date__gte=twoDaysAgo)
+            ssoCode.delete()
+        except Exception as e:
+            return Response({'ok':False, 'err':'CODE_EXPIRED', 'verbosed':'code is either expired or does not exist'}, status=400)
+
+        tokens = get_tokens_for_user(user)
+        return Response({'ok':True, 'tokens':tokens}, status=200)
     
 class CreateUser(APIView):
     def post(self, request):

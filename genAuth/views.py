@@ -31,7 +31,17 @@ class SSOLogin(APIView):
             return Response()
         # if no exceptions
 
-        code = getCode(user)    
+        code = getCode(user)
+
+        if not user.verified:
+            try:
+                tokenObj = UserVerificationToken.objects.get(user=user)
+                tokenObj.date = datetime.date.today()
+                tokenObj.save()
+            except ObjectDoesNotExist:
+                tokenObj = UserVerificationToken.objects.create(user=user)
+            token = tokenObj.token
+            sendVerificationEmail(user, token)
         sendSSOToken(user, code)
         return Response({'ok':True, 'id':user.id}, status=200)
 
@@ -69,6 +79,8 @@ class CreateUser(APIView):
             sendSSOToken(user) # usr should be able to log in directly after created user
             try:
                 tokenObj = UserVerificationToken.objects.get(user=user)
+                tokenObj.date = datetime.date.today()
+                tokenObj.save()
             except ObjectDoesNotExist:
                 tokenObj = UserVerificationToken.objects.create(user=user)
             token = tokenObj.token

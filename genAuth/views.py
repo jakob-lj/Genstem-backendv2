@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from genAuth.models import User, UserVerificationToken
 from genAuth.notifications import sendSSOToken, sendVerificationEmail
 from security.errorHandling import verbosedFeedback
+import datetime
 
 # Create your views here.
 class SSOLogin(APIView):
@@ -51,3 +52,32 @@ class CreateUser(APIView):
             sendVerificationEmail(user, token)
             return Response({'ok':True}, status=200)
 
+
+class VerifyUser(APIView):
+
+    def get(self, request):
+        return Response(status=200)
+
+    def put(self, request):
+        try:
+            token = request.data['token']
+            email = request.data['email']
+            id = request.data['id']
+            user = User.objects.get(email=email, id=id)
+        except KeyError as e:
+            return Response({'ok':False, 'err':'MISSING_INFO', 'verbosed':verbosedFeedback(e)}, status=400)
+        except ObjectDoesNotExist:
+            return Response({'ok':False, 'err':'USER_NOT_FOUND'}, status=400)
+        try:
+            today = datetime.date.today()
+            twoDaysAgo = today - datetime.timedelta(days=2)
+            uvf = UserVerificationToken.objects.get(user = user, token=token, date__gte=twoDaysAgo)
+            uvf.delete()
+        except Exception as e:
+            print(e)
+            return Response({'ok':False, 'err':'TOKEN_EXPIRED', 'verbosed':'token is either expired or does not exist'}, status=400)
+        
+        user.verified = True
+        user.dummy = False
+        user.save()
+        return Response({'ok':True}, status=200)

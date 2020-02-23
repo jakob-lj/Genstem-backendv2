@@ -5,7 +5,7 @@ from django.conf.urls import url
 from genAuth.views import SSOLogin, CreateUser, VerifyUser, LoginStepTwo
 from rest_framework_swagger.views import get_swagger_view
 
-schema_view = get_swagger_view(title='Pastebin API')
+schema_view = get_swagger_view(title='Genstem API')
 
 urlpatterns = [
     url(r'^$', schema_view),

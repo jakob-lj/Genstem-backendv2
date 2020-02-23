@@ -9,31 +9,30 @@ from genAuth.models import User, UserVerificationToken, SSOCode
 from genAuth.notifications import sendSSOToken, sendVerificationEmail
 from security.errorHandling import verbosedFeedback
 from genAuth.tokenHandler import get_tokens_for_user
-from rest_framework.schemas import AutoSchema
+
 import datetime
-import coreapi
+
+from genAuth.schemas import *
+
+
 
 # Create your views here.
 class SSOLogin(APIView):
-    
+    # schema = AutoSchema(
+    #     manual_fields = [coreapi.Field('t')]
+    # )
+    schema = SSOSchema()
 
     def get(self, request):
+        """
+        Might be used to find tokens later
+        """
         return Response(200)
 
     def post(self, request):
         """
-        GET SSO CODE FOR USER
-        ---
-        parameters:
-        -   name: email
-            description: users email, used to identify the user
-            required: true
-            type: string
-            paramType: form
+        Get SSO Code for user
         """
-        schema = AutoSchema(
-            manual_fields = [coreapi.Field('t')]
-        )
         try:
             email = request.data['email'] 
             user = User.objects.get(email=email) # user exists
@@ -62,6 +61,13 @@ class SSOLogin(APIView):
         return Response({'ok':True, 'id':user.id}, status=200)
 
 class LoginStepTwo(APIView):
+
+    """ 
+    Trade SSO Code for tokens
+    """
+
+    schema = LoginSchema()
+
     def post(self, request):
         try:
             id = request.data['id']
@@ -82,6 +88,12 @@ class LoginStepTwo(APIView):
         return Response({'ok':True, 'tokens':tokens}, status=200)
     
 class CreateUser(APIView):
+    """
+    Create a new user
+    """
+
+    schema = CreateUserSchema()
+
     def post(self, request):
         try:
             name = request.data['name']
@@ -106,10 +118,21 @@ class CreateUser(APIView):
 
 class VerifyUser(APIView):
 
+    schema = VerifyUserSchema()
+
     def get(self, request):
+        """
+        Might be added later
+        """
+
         return Response(status=200)
 
     def put(self, request):
+        """
+        Verify user from email
+        """
+
+
         try:
             token = request.data['token']
             email = request.data['email']

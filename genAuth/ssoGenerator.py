@@ -1,6 +1,7 @@
 from genAuth.models import SSOCode
 import datetime
 from django.utils import timezone
+from genAuth.codeGenerators import loginCode
 
 def getCode(user):
     try:

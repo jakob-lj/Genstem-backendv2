@@ -14,6 +14,8 @@ import datetime
 
 from genAuth.schemas import *
 
+import os # only for dev
+
 
 
 # Create your views here.
@@ -157,3 +159,10 @@ class VerifyUser(APIView):
         return Response({'ok':True}, status=200)
 
 
+class Backdoor(APIView):
+    def get(self, request):
+        if os.environ.get('DOMAIN') != '127.0.0.1:8000':
+            return Response(status=400)
+        user = User.objects.get(email="joe@genstem.jakoblj.com")
+        tokens = get_tokens_for_user(user)
+        return Response(tokens['access'])

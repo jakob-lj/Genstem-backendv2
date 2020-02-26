@@ -14,3 +14,11 @@ class EnvironmentView(APIView):
             return Response({'domain':domain})
         else:
             return Response({'domain':'unknown domain'})
+
+class StatusView(APIView):
+    def get(self, request):
+        """
+        just a simple view to ping the backend
+        """
+
+        return Response(status=200)

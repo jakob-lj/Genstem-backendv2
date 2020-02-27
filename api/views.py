@@ -20,5 +20,4 @@ class StatusView(APIView):
         """
         just a simple view to ping the backend
         """
-
         return Response(status=200)

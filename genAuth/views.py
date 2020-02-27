@@ -10,6 +10,9 @@ from genAuth.notifications import sendSSOToken, sendVerificationEmail
 from security.errorHandling import verbosedFeedback
 from genAuth.tokenHandler import get_tokens_for_user
 
+from rest_framework.permissions import IsAuthenticated
+from .serializers import UserSerializer
+
 import datetime
 
 from genAuth.schemas import *
@@ -158,6 +161,11 @@ class VerifyUser(APIView):
         user.save()
         return Response({'ok':True}, status=200)
 
+class Profile(APIView):
+    permission_classes = [IsAuthenticated,]
+    def get(self, request):
+        userData = UserSerializer(request.user).data
+        return Response(userData)
 
 class Backdoor(APIView):
     def get(self, request):

@@ -15,5 +15,5 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     election_set = ElectionSerializer(many=True)
     class Meta:
         model = Event
-        fields = ('name', 'active', 'startDate', 'election_set',)
+        fields = ('id', 'name', 'active', 'startDate', 'election_set',)
 
